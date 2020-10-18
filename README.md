@@ -1,1 +1,1 @@
-# free_medium-mern
+# Freemium
