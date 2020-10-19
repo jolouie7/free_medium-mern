@@ -22,6 +22,14 @@ const UserSchema = new Schema(
       type: String,
       required: true,
     },
+    bio: {
+      type: String,
+    },
+    image: {
+      type: String,
+    },
+    likes: [{ type: Schema.Types.ObjectId, ref: "Article" }],
+    following: [{ type: Schema.Types.ObjectId, ref: "User" }],
     register_date: {
       type: Date,
       default: Date.now,
