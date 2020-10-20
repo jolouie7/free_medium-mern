@@ -25,7 +25,7 @@ connection.once("open", () => {
 // Use routes
 app.use("/api/auth", require("./routes/api/auth"));
 app.use("/api/users", require("./routes/api/users"));
-// app.use("/api/expenses", require("./routes/api/expense"));
+app.use("/api/articles", require("./routes/api/articles"));
 
 app.get("/", (req, res) => {
   res.send("Hello from Express!");
