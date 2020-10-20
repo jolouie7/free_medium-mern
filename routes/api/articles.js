@@ -4,6 +4,7 @@ const router = express.Router();
 const auth = require("../../middleware/auth");
 const { update } = require("../../models/Article");
 const Article = require("../../models/Article");
+const Comment = require("../../models/Comment");
 
 // @route GET api/articles
 // @desc Get all articles
@@ -14,7 +15,8 @@ router.get("/", auth, async (req, res) => {
     await res.json(articles);
     throw Error("No articles exist");
   } catch (error) {
-    res.status(status).json("Error: ", error);
+    // res.status(status).json("Error: ", error);
+    res.status(400).json("Error: ", error)
   }
 });
 
@@ -28,6 +30,7 @@ router.get("/:id", auth, async (req, res) => {
     throw Error("Error: ", Error);
   } catch (error) {
     res.status(status).json("Error: ", error);
+    // res.status(400).json("Error: ", error)
   }
 });
 
@@ -60,7 +63,8 @@ router.post("/", auth, async (req, res) => {
     res.json(saveArticle)
     throw Error("Error: ", Error);
   } catch (error) {
-    res.status(status).json("Error: ", error);
+    // res.status(status).json("Error: ", error);
+    res.status(400).json("Error: ", error);
   }
 })
 
@@ -85,7 +89,8 @@ router.patch("/:id", auth, async (req, res) => {
     res.json(updatedArticle);
     throw Error("Error: ", Error);
   } catch (error) {
-    res.status(status).json("Error: ", error);
+    // res.status(status).json("Error: ", error);
+    res.status(400).json("Error: ", error);
   }
 })
 
@@ -98,14 +103,92 @@ router.delete("/:id", auth, async (req, res) => {
     await res.json("Article has been deleted!")
     throw Error("Error: ", Error)
   } catch (error) {
+    // res.status(status).json("Error: ", error);
+    res.status(400).json("Error: ", error);
+  }
+})
+
+// @route POST api/articles/addLike/:id
+// @desc like an article
+// @access Private
+// ! not working as expected
+router.post("/addLike/:id", auth, async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    article.likes = article.likes + 1;
+    await res.json(article);
+    throw Error("Error: ", Error);
+  } catch (error) {
+    // res.status(status).json("Error: ", error);
+    res.status(400).json("Error: ", error);
+  }
+});
+
+// @route POST api/articles/deleteLike/:id
+// @desc unlike an article
+// @access Private
+// ! not working as expected
+// ! how do u know if the user liked an article or not?
+router.post("/deleteLike/:id", auth, async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    article.likes = article.likes - 1;
+    await res.json(article);
+    throw Error("Error: ", Error);
+  } catch (error) {
+    // res.status(status).json("Error: ", error);
+    res.status(400).json("Error: ", error);
+  }
+});
+
+// @route GET api/articles/comments
+// @desc Get all comments
+// @access private
+// ! doesn't return a response
+router.get("/comments", auth, async (req, res) => {
+  console.log("COMMENTS!")
+  console.log(req)
+  try {
+    const comments = await Comment.find();
+    await res.json(comments)
+    throw Error("Error: ", Error)
+  } catch (error) {
+    // res.status(400).json("Error: ", error)
     res.status(status).json("Error: ", error);
   }
 })
 
-// like the article
-// unlike the article
-// get all comments for the article
-// create a new comment
-// delete the comment
+// @route POST api/articles/comments
+// @desc Add new comment
+// @access private
+router.post("/comments", auth, async (req, res) => {
+  try {
+    const newComment = new Comment({
+      content: req.body.content,
+      article: req.body.article,
+      user: req.user.id,
+    });
+    const saveComment = await newComment.save();
+    res.json(saveComment)
+    throw Error("Error: ", Error);
+  } catch (error) {
+    // res.status(status).json("Error: ", error);
+    res.status(400).json("Error: ", error);
+  }
+});
+
+// @route DELETE api/articles/comments/:id
+// @desc Delete comment
+// @access private
+router.delete("/comments/:id", auth, async (req, res) => {
+  try {
+    await Comment.findByIdAndDelete(req.params.id)
+    await res.json("Comment has been deleted!")
+    throw Error("Error: ", Error)
+  } catch (error) {
+    // res.status(status).json("Error: ", error);
+    res.status(400).json("Error: ", error);
+  }
+})
 
 module.exports = router;
