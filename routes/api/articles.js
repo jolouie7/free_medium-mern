@@ -73,24 +73,8 @@ router.post("/", auth, async (req, res) => {
 // @access private
 router.patch("/:id", auth, async (req, res) => {
   try {
-    const article = await Article.findById(req.params.id);
-    const newArr = [...article.tags]
-    console.log("before:", newArr);
-    newArr.splice(0, 0, req.body.tags)
-    console.log("after: ", newArr);
-    // const newTags = article.tags.splice()
-    // console.log(newTags)
-    // newTags.push(req.body.tags)
-    // ! fix so it doesn't overwrite all the tags in the array
     // ! there is a bug where in postman I have to send 2x
-    const updatedArticle = await Article.findByIdAndUpdate(req.params.id, {
-      title: req.body.title,
-      subTitle: req.body.subTitle,
-      content: req.body.content,
-      tags: req.body.tags,
-      user: req.user.id,
-    });
-    // {updatedArticle.tags = tags};
+    const updatedArticle = await Article.findByIdAndUpdate(req.params.id, req.body);
     await updatedArticle.save();
     res.json(updatedArticle);
     throw Error("Error: ", Error);
