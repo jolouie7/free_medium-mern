@@ -18,8 +18,9 @@ const ArticleSchema = new Schema(
     },
     tags: {
       type: [String],
+      default: []
     },
-    likes: { type: Number, default: 0 },
+    likes: { type: [String], default: [] },
     registerDate: {
       type: Date,
       default: Date.now,

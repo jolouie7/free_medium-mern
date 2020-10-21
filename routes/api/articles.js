@@ -15,8 +15,8 @@ router.get("/", auth, async (req, res) => {
     await res.json(articles);
     throw Error("No articles exist");
   } catch (error) {
-    // res.status(status).json("Error: ", error);
-    res.status(400).json("Error: ", error)
+    res.status(status).json("Error: ", error);
+    // res.status(400).json("Error: ", error)
   }
 });
 
@@ -63,8 +63,8 @@ router.post("/", auth, async (req, res) => {
     res.json(saveArticle)
     throw Error("Error: ", Error);
   } catch (error) {
-    // res.status(status).json("Error: ", error);
-    res.status(400).json("Error: ", error);
+    res.status(status).json("Error: ", error);
+    // res.status(400).json("Error: ", error);
   }
 })
 
@@ -73,8 +73,14 @@ router.post("/", auth, async (req, res) => {
 // @access private
 router.patch("/:id", auth, async (req, res) => {
   try {
-    // const article = await Article.findById(req.params.id);
-    // const tags = article.tags.push(req.body.tags)
+    const article = await Article.findById(req.params.id);
+    const newArr = [...article.tags]
+    console.log("before:", newArr);
+    newArr.splice(0, 0, req.body.tags)
+    console.log("after: ", newArr);
+    // const newTags = article.tags.splice()
+    // console.log(newTags)
+    // newTags.push(req.body.tags)
     // ! fix so it doesn't overwrite all the tags in the array
     // ! there is a bug where in postman I have to send 2x
     const updatedArticle = await Article.findByIdAndUpdate(req.params.id, {
@@ -89,8 +95,8 @@ router.patch("/:id", auth, async (req, res) => {
     res.json(updatedArticle);
     throw Error("Error: ", Error);
   } catch (error) {
-    // res.status(status).json("Error: ", error);
-    res.status(400).json("Error: ", error);
+    res.status(status).json("Error: ", error);
+    // res.status(400).json("Error: ", error);
   }
 })
 
@@ -103,58 +109,59 @@ router.delete("/:id", auth, async (req, res) => {
     await res.json("Article has been deleted!")
     throw Error("Error: ", Error)
   } catch (error) {
-    // res.status(status).json("Error: ", error);
-    res.status(400).json("Error: ", error);
+    res.status(status).json("Error: ", error);
+    // res.status(400).json("Error: ", error);
   }
 })
 
 // @route POST api/articles/addLike/:id
 // @desc like an article
 // @access Private
-// ! not working as expected
 router.post("/addLike/:id", auth, async (req, res) => {
   try {
     const article = await Article.findById(req.params.id);
-    article.likes = article.likes + 1;
+    // article.likes = article.likes + 1;
+    article.likes.push(req.user.id)
+    article.save()
     await res.json(article);
     throw Error("Error: ", Error);
   } catch (error) {
-    // res.status(status).json("Error: ", error);
-    res.status(400).json("Error: ", error);
+    res.status(status).json("Error: ", error);
+    // res.status(400).json("Error: ", error);
   }
 });
 
 // @route POST api/articles/deleteLike/:id
 // @desc unlike an article
 // @access Private
-// ! not working as expected
-// ! how do u know if the user liked an article or not?
 router.post("/deleteLike/:id", auth, async (req, res) => {
   try {
     const article = await Article.findById(req.params.id);
-    article.likes = article.likes - 1;
+    // article.likes = article.likes - 1;
+    const newLikes = await article.likes.filter(like => {
+      like === req.user.id
+    })
+    article.likes = newLikes
+    article.save()
     await res.json(article);
     throw Error("Error: ", Error);
   } catch (error) {
-    // res.status(status).json("Error: ", error);
-    res.status(400).json("Error: ", error);
+    res.status(status).json("Error: ", error);
+    // res.status(400).json("Error: ", error);
   }
 });
 
-// @route GET api/articles/comments
+// @route GET api/articles/comments/allComments
 // @desc Get all comments
 // @access private
-// ! doesn't return a response
-router.get("/comments", auth, async (req, res) => {
-  console.log("COMMENTS!")
-  console.log(req)
+router.get("/comments/allComments", auth, async (req, res) => {
   try {
     const comments = await Comment.find();
     await res.json(comments)
     throw Error("Error: ", Error)
   } catch (error) {
-    // res.status(400).json("Error: ", error)
-    res.status(status).json("Error: ", error);
+    res.status(400).json("Error: ", error)
+    // res.status(status).json("Error: ", error);
   }
 })
 
@@ -172,8 +179,8 @@ router.post("/comments", auth, async (req, res) => {
     res.json(saveComment)
     throw Error("Error: ", Error);
   } catch (error) {
-    // res.status(status).json("Error: ", error);
-    res.status(400).json("Error: ", error);
+    res.status(status).json("Error: ", error);
+    // res.status(400).json("Error: ", error);
   }
 });
 
@@ -186,8 +193,8 @@ router.delete("/comments/:id", auth, async (req, res) => {
     await res.json("Comment has been deleted!")
     throw Error("Error: ", Error)
   } catch (error) {
-    // res.status(status).json("Error: ", error);
-    res.status(400).json("Error: ", error);
+    res.status(status).json("Error: ", error);
+    // res.status(400).json("Error: ", error);
   }
 })
 
