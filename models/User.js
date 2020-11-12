@@ -30,7 +30,7 @@ const UserSchema = new Schema(
     },
     likes: [{ type: Schema.Types.ObjectId, ref: "Article" }],
     following: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    register_date: {
+    registerDate: {
       type: Date,
       default: Date.now,
     },
