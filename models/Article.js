@@ -18,9 +18,9 @@ const ArticleSchema = new Schema(
     },
     tags: {
       type: [String],
-      default: []
+      default: [],
     },
-    likes: { type: [String], default: [] },
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
     registerDate: {
       type: Date,
       default: Date.now,
@@ -29,11 +29,29 @@ const ArticleSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    slug: { type: String },
   },
   {
     timestamps: true,
   }
 );
+
+function slugify(text) {
+  return text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, "-") // replace spaces with -
+    .replace(/[^\w\-]+/g, "") // remove all non-word chars
+    .replace(/\-\-+/g, "-") // replace multiple - with single -
+    .replace(/^-+/, "") // trim - from start of text
+    .replace(/-+$/, ""); // trim - from end of text
+}
+
+// make sure that the slug is created from the title
+ArticleSchema.pre("save", function(next) {
+  this.slug = slugify(this.title);
+  next();
+})
 
 const Article = mongoose.model("Article", ArticleSchema);
 module.exports = Article;

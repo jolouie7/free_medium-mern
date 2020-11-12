@@ -9,7 +9,7 @@ const Comment = require("../../models/Comment");
 // @route GET api/articles
 // @desc Get all articles
 // @access Private
-router.get("/", auth, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const articles = await Article.find().sort({ date: -1 });
     await res.json(articles);
@@ -23,11 +23,28 @@ router.get("/", auth, async (req, res) => {
 // @route GET api/articles/:id
 // @desc Get 1 articles
 // @access Private
-router.get("/:id", auth, async (req, res) => {
+// router.get("/:id", auth, async (req, res) => {
+//   try {
+//     const article = await Article.findById(req.params.id);
+//     await res.json(article);
+//     throw Error("Error: ", Error);
+//   } catch (error) {
+//     res.status(status).json("Error: ", error);
+//     // res.status(400).json("Error: ", error)
+//   }
+// });
+
+// @route GET api/articles/:slug
+// @desc Get 1 unique blog post
+// @access Public
+router.get("/:slug", async (req, res, next) => {
   try {
-    const article = await Article.findById(req.params.id);
-    await res.json(article);
-    throw Error("Error: ", Error);
+    const article = await Article.fineOne({slug: {$eq: req.params.slug}}, async (err, article) => {
+      await res.json(article)
+      if (err) return next(err);
+    });
+    // await res.json(article);
+    // throw Error("Error: ", Error);
   } catch (error) {
     res.status(status).json("Error: ", error);
     // res.status(400).json("Error: ", error)
@@ -39,6 +56,7 @@ router.get("/:id", auth, async (req, res) => {
 // @access private
 router.post("/", auth, async (req, res) => {
   try {
+    console.log("request: ",req)
     // add tags
     const newTags = [];
     // assuming that req.body.tags is a string
@@ -98,47 +116,65 @@ router.delete("/:id", auth, async (req, res) => {
   }
 })
 
-// @route POST api/articles/addLike/:id
+// @route PUT api/articles/like
 // @desc like an article
 // @access Private
-router.post("/addLike/:id", auth, async (req, res) => {
-  try {
-    const article = await Article.findById(req.params.id);
-    // article.likes = article.likes + 1;
-    article.likes.push(req.user.id)
-    article.save()
-    await res.json(article);
-    throw Error("Error: ", Error);
-  } catch (error) {
-    res.status(status).json("Error: ", error);
-    // res.status(400).json("Error: ", error);
-  }
+router.put("/like", auth, (req, res) => {
+  Article.findByIdAndUpdate(req.body.id, {
+    $push: {likes:req.user.id}
+  }, {
+    new: true
+  }).exec((err, result) => {
+    if(err) {
+      return res.status(422).json({error:err})
+    } else {
+      res.json(result);
+    }
+  })
 });
 
-// @route POST api/articles/deleteLike/:id
-// @desc unlike an article
+// @route PUT api/articles/unlike
+// @desc like an article
 // @access Private
-router.post("/deleteLike/:id", auth, async (req, res) => {
-  try {
-    const article = await Article.findById(req.params.id);
-    // article.likes = article.likes - 1;
-    const newLikes = await article.likes.filter(like => {
-      like === req.user.id
-    })
-    article.likes = newLikes
-    article.save()
-    await res.json(article);
-    throw Error("Error: ", Error);
-  } catch (error) {
-    res.status(status).json("Error: ", error);
-    // res.status(400).json("Error: ", error);
-  }
+router.put("/unlike", auth, (req, res) => {
+  Article.findByIdAndUpdate(req.body.id, {
+    $pull: {likes:req.user.id}
+  }, {
+    new: true
+  }).exec((err, result) => {
+    if(err) {
+      return res.status(422).json({error:err})
+    } else {
+      res.json(result);
+    }
+  })
 });
+
+
+// // @route POST api/articles/deleteLike/:id
+// // @desc unlike an article
+// // @access Private
+// router.post("/deleteLike/:id", auth, async (req, res) => {
+//   try {
+//     const article = await Article.findById(req.params.id);
+//     // article.likes = article.likes - 1;
+//     const newLikes = await article.likes.filter(like => {
+//       like === req.user.id
+//     })
+//     article.likes = newLikes
+//     article.save()
+//     await res.json(article);
+//     throw Error("Error: ", Error);
+//   } catch (error) {
+//     res.status(status).json("Error: ", error);
+//     // res.status(400).json("Error: ", error);
+//   }
+// });
 
 // @route GET api/articles/comments/allComments
 // @desc Get all comments
 // @access private
-router.get("/comments/allComments", auth, async (req, res) => {
+router.get("/comments/allComments", async (req, res) => {
   try {
     const comments = await Comment.find();
     await res.json(comments)
