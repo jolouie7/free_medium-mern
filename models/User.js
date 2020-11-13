@@ -29,6 +29,7 @@ const UserSchema = new Schema(
       type: String,
     },
     likes: [{ type: Schema.Types.ObjectId, ref: "Article" }],
+    followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: Schema.Types.ObjectId, ref: "User" }],
     registerDate: {
       type: Date,
