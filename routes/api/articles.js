@@ -86,16 +86,16 @@ router.post("/", auth, async (req, res) => {
   }
 })
 
-// @route PATCH api/articles/:id
+// @route PUT api/articles/:id
 // @desc Update an article
 // @access private
-router.patch("/:id", auth, async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   try {
     // ! there is a bug where in postman I have to send 2x
-    const updatedArticle = await Article.findByIdAndUpdate(req.params.id, req.body);
-    await updatedArticle.save();
-    res.json(updatedArticle);
-    throw Error("Error: ", Error);
+    (await Article.findByIdAndUpdate(req.params.id, req.body)).save((err, response) => {
+      if (err) return res.status(400).json({error: err})
+      res.json(response)
+    });
   } catch (error) {
     res.status(status).json("Error: ", error);
     // res.status(400).json("Error: ", error);
@@ -149,27 +149,6 @@ router.put("/unlike", auth, (req, res) => {
     }
   })
 });
-
-
-// // @route POST api/articles/deleteLike/:id
-// // @desc unlike an article
-// // @access Private
-// router.post("/deleteLike/:id", auth, async (req, res) => {
-//   try {
-//     const article = await Article.findById(req.params.id);
-//     // article.likes = article.likes - 1;
-//     const newLikes = await article.likes.filter(like => {
-//       like === req.user.id
-//     })
-//     article.likes = newLikes
-//     article.save()
-//     await res.json(article);
-//     throw Error("Error: ", Error);
-//   } catch (error) {
-//     res.status(status).json("Error: ", error);
-//     // res.status(400).json("Error: ", error);
-//   }
-// });
 
 // @route GET api/articles/comments/allComments
 // @desc Get all comments
