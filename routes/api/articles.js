@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 const auth = require("../../middleware/auth");
-const { update } = require("../../models/Article");
+// const { update } = require("../../models/Article");
+const User = require("../../models/User");
 const Article = require("../../models/Article");
 const Comment = require("../../models/Comment");
 
@@ -19,20 +20,6 @@ router.get("/", async (req, res) => {
     // res.status(400).json("Error: ", error)
   }
 });
-
-// @route GET api/articles/:id
-// @desc Get 1 articles
-// @access Private
-// router.get("/:id", auth, async (req, res) => {
-//   try {
-//     const article = await Article.findById(req.params.id);
-//     await res.json(article);
-//     throw Error("Error: ", Error);
-//   } catch (error) {
-//     res.status(status).json("Error: ", error);
-//     // res.status(400).json("Error: ", error)
-//   }
-// });
 
 // @route GET api/articles/:slug
 // @desc Get 1 unique blog post
@@ -86,21 +73,101 @@ router.post("/", auth, async (req, res) => {
   }
 })
 
+// @route PUT api/articles/like
+// @desc like an article
+// @access Private
+// router.put("/like", auth, (req, res) => {
+//   Article.findByIdAndUpdate(req.body.articleId, {
+//     $push: {likes:req.user.id}
+//   }, {
+//     new: true
+//   }).exec((err, result) => {
+//     if(err) {
+//       return res.status(422).json({error:err})
+//     } else {
+//       res.json(result);
+//     }
+//   })
+// });
+router.put("/like", auth, (req, res) => {
+  Article.findByIdAndUpdate(
+    req.body.articleId,
+    {
+      $push: { likes: req.user.id },
+    },
+    {
+      new: true,
+    }
+  ).exec((err, response) => {
+    if (err) return res.status(422).json({ error: err });
+    User.findByIdAndUpdate(
+      req.user.id,
+      {
+        $push: { likes: req.body.articleId },
+      },
+      {
+        new: true,
+      }
+    ).exec((err, response) => {
+      if (err) return res.status(422).json({ error: err });
+      res.json(response);
+    });
+  });
+});
+
+// @route PUT api/articles/unlike
+// @desc like an article
+// @access Private
+router.put("/unlike", auth, (req, res) => {
+  Article.findByIdAndUpdate(req.body.articleId, {
+    $pull: {likes:req.user.id}
+  }, {
+    new: true
+  }).exec((err, response) => {
+    if(err) return res.status(422).json({error:err})
+    User.findByIdAndUpdate(req.user.id, {
+      $pull: {likes: req.body.articleId}
+    }, {
+      new: true
+    }).exec((err, response) => {
+      if (err) return res.status(422).json({ error: err });
+      res.json(response)
+    })
+  })
+});
+
 // @route PUT api/articles/:id
 // @desc Update an article
 // @access private
-router.put("/:id", auth, async (req, res) => {
+router.put("/:id", auth, (req, res) => {
   try {
     // ! there is a bug where in postman I have to send 2x
-    (await Article.findByIdAndUpdate(req.params.id, req.body)).save((err, response) => {
+    Article.findByIdAndUpdate(req.body.articleId, req.body, {
+      new: true
+    }).exec((err, response) => {
       if (err) return res.status(400).json({error: err})
       res.json(response)
-    });
-  } catch (error) {
-    res.status(status).json("Error: ", error);
-    // res.status(400).json("Error: ", error);
+    })
+  } catch (err) {
+    console.log("Error: ", err)
+    res.status(400).json({error: err});
   }
 })
+// router.put("/:id", auth, async (req, res) => {
+//   try {
+//     // ! there is a bug where in postman I have to send 2x
+//     const updatedArticle = await Article.findByIdAndUpdate(
+//       req.params.id,
+//       req.body
+//     );
+//     await updatedArticle.save();
+//     res.json(updatedArticle);
+//     throw Error("Error: ", Error);
+//   } catch (error) {
+//     res.status(status).json("Error: ", error);
+//     // res.status(400).json("Error: ", error);
+//   }
+// });
 
 // @route DELETE api/articles/:id
 // @desc Delete an article
@@ -116,40 +183,6 @@ router.delete("/:id", auth, async (req, res) => {
   }
 })
 
-// @route PUT api/articles/like
-// @desc like an article
-// @access Private
-router.put("/like", auth, (req, res) => {
-  Article.findByIdAndUpdate(req.body.id, {
-    $push: {likes:req.user.id}
-  }, {
-    new: true
-  }).exec((err, result) => {
-    if(err) {
-      return res.status(422).json({error:err})
-    } else {
-      res.json(result);
-    }
-  })
-});
-
-// @route PUT api/articles/unlike
-// @desc like an article
-// @access Private
-router.put("/unlike", auth, (req, res) => {
-  Article.findByIdAndUpdate(req.body.id, {
-    $pull: {likes:req.user.id}
-  }, {
-    new: true
-  }).exec((err, result) => {
-    if(err) {
-      return res.status(422).json({error:err})
-    } else {
-      res.json(result);
-    }
-  })
-});
-
 // @route GET api/articles/comments/allComments
 // @desc Get all comments
 // @access private
@@ -159,7 +192,7 @@ router.get("/comments/allComments", async (req, res) => {
     await res.json(comments)
     throw Error("Error: ", Error)
   } catch (error) {
-    res.status(400).json("Error: ", error)
+    res.status(400).json({error: error})
     // res.status(status).json("Error: ", error);
   }
 })
