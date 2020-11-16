@@ -27,6 +27,7 @@ const UserSchema = new Schema(
     },
     image: {
       type: String,
+      default: "https://free-medium-profile-pictures.s3-us-west-1.amazonaws.com/defaultUserImage74a49f63-d.png"
     },
     likes: [{ type: Schema.Types.ObjectId, ref: "Article" }],
     followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
