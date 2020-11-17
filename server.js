@@ -31,7 +31,7 @@ connection.once("open", () => {
 app.use("/api/auth", require("./routes/api/auth"));
 app.use("/api/users", require("./routes/api/users"));
 app.use("/api/articles", require("./routes/api/articles"));
-app.use("/api/upload", require("./routes/api/upload"));
+app.use("/api/upload", require("./routes/api/profileUpload"));
 
 app.get("/", (req, res) => {
   res.send("Hello from Express!");

@@ -39,6 +39,7 @@ router.post("/login", (req, res) => {
               name: user.name,
               email: user.email,
               username: user.username,
+              image: user.image,
             },
           });
         }

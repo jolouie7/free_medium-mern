@@ -1,41 +1,42 @@
 const express = require("express");
 const router = express.Router();
+const aws = require("aws-sdk");
 const multer = require("multer");
-const AWS = require("aws-sdk");
-const {v4 : uuidv4} = require('uuid')
+const multerS3 = require("multer-s3");
 
-const s3 = new AWS.S3({
-  credentials: {
-    accessKeyId: process.env.AWS_ID,
-    secretAccessKey: process.env.AWS_SECRET,
-  },
+const s3 = new aws.S3();
+
+// access credentials
+aws.config.update({
+  secretAccessKey: process.env.AWS_SECRET,
+  accessKeyId: process.env.AWS_ID,
+  // region: "us-west-2",
 });
 
-const storage = multer.memoryStorage({
-  destination: function (req, file, callback) {
-    callback(null, "");
-  },
+// function that validates the file type
+const fileFilter = (req, file, cb) => {
+  console.log("file:", file)
+  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid file type, only JPEG and PNG is allowed!"), false);
+  }
+};
+
+// setup Multer to process the image and send it to the S3 bucket
+const upload = multer({
+  fileFilter,
+  storage: multerS3({
+    acl: "public-read",
+    s3,
+    bucket: process.env.AWS_BUCKET_NAME,
+    metadata: function (req, file, cb) {
+      cb(null, { fieldName: "TESTING_METADATA" });
+    },
+    key: function (req, file, cb) {
+      cb(null, file.originalname.split(".")[0] + "-" + Date.now().toString());
+    },
+  }),
 });
 
-const upload = multer({ storage }).single("image");
-
-router.post("/", upload, (req, res) => {
-  let myFile = req.file.originalname.split(".");
-  const fileType = myFile[myFile.length - 1];
-
-  const params = {
-    Bucket: process.env.AWS_BUCKET_NAME,
-    Key: `${req.file.originalname.split(".")[0] + uuidv4().slice(0,10)}.${fileType}`,
-    Body: req.file.buffer,
-  };
-
-  s3.upload(params, (error, data) => {
-    if (error) {
-      res.status(500).json({error: error});
-    }
-
-    res.json(data)
-  });
-});
-
-module.exports = router;
+module.exports = upload;

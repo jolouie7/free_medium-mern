@@ -20,21 +20,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// @route PATCH api/users/:id
-// @desc Update user data
-// @access Private
-router.patch("/:id", auth, async (req, res) => {
-  try {
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body);
-    await updatedUser.save();
-    res.json(updatedUser);
-    throw Error("Error: ", Error);
-  } catch (error) {
-    res.status(status).json("Error: ", error);
-    // res.status(400).json("Error: ", error);
-  }
-});
-
 // @route PUT api/users/follow
 // @desc Current User follows another user
 // @access Private
@@ -95,6 +80,21 @@ router.put("/unfollow", auth, (req, res) => {
       res.json(response);
     });
   });
+});
+
+// @route PATCH api/users/:id
+// @desc Update user data
+// @access Private
+router.put("/:id", auth, async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body);
+    await updatedUser.save();
+    res.json(updatedUser);
+    throw Error("Error: ", Error);
+  } catch (error) {
+    res.status(status).json("Error: ", error);
+    // res.status(400).json("Error: ", error);
+  }
 });
 
 module.exports = router;
