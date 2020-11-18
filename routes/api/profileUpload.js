@@ -19,7 +19,6 @@ router.post("/:id", (req, res) => {
       });
     }
 
-    // console.log(req.file)
     let update = { image: req.file.location };
 
     User.findByIdAndUpdate(uid, update, { new: true }).exec((err ,response) => {

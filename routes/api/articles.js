@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 
 const auth = require("../../middleware/auth");
-// const { update } = require("../../models/Article");
 const User = require("../../models/User");
 const Article = require("../../models/Article");
 const Comment = require("../../models/Comment");
@@ -12,7 +11,8 @@ const Comment = require("../../models/Comment");
 // @access Private
 router.get("/", async (req, res) => {
   try {
-    const articles = await Article.find().sort({ date: -1 });
+    const articles = await Article.find();
+    // const articles = await Article.find().sort({ date: -1 });
     await res.json(articles);
     throw Error("No articles exist");
   } catch (error) {
@@ -30,11 +30,8 @@ router.get("/:slug", async (req, res, next) => {
       await res.json(article)
       if (err) return next(err);
     });
-    // await res.json(article);
-    // throw Error("Error: ", Error);
-  } catch (error) {
-    res.status(status).json("Error: ", error);
-    // res.status(400).json("Error: ", error)
+  } catch (err) {
+    res.status(400).json({error: err});
   }
 });
 
@@ -43,7 +40,6 @@ router.get("/:slug", async (req, res, next) => {
 // @access private
 router.post("/", auth, async (req, res) => {
   try {
-    console.log("request: ",req)
     // add tags
     const newTags = [];
     // assuming that req.body.tags is a string
@@ -68,27 +64,13 @@ router.post("/", auth, async (req, res) => {
     res.json(saveArticle)
     throw Error("Error: ", Error);
   } catch (error) {
-    res.status(status).json("Error: ", error);
-    // res.status(400).json("Error: ", error);
+    res.status(400).json({ error: err });
   }
 })
 
 // @route PUT api/articles/like
 // @desc like an article
 // @access Private
-// router.put("/like", auth, (req, res) => {
-//   Article.findByIdAndUpdate(req.body.articleId, {
-//     $push: {likes:req.user.id}
-//   }, {
-//     new: true
-//   }).exec((err, result) => {
-//     if(err) {
-//       return res.status(422).json({error:err})
-//     } else {
-//       res.json(result);
-//     }
-//   })
-// });
 router.put("/like", auth, (req, res) => {
   Article.findByIdAndUpdate(
     req.body.articleId,
@@ -141,7 +123,6 @@ router.put("/unlike", auth, (req, res) => {
 // @access private
 router.put("/:id", auth, (req, res) => {
   try {
-    // ! there is a bug where in postman I have to send 2x
     Article.findByIdAndUpdate(req.body.articleId, req.body, {
       new: true
     }).exec((err, response) => {
@@ -153,21 +134,6 @@ router.put("/:id", auth, (req, res) => {
     res.status(400).json({error: err});
   }
 })
-// router.put("/:id", auth, async (req, res) => {
-//   try {
-//     // ! there is a bug where in postman I have to send 2x
-//     const updatedArticle = await Article.findByIdAndUpdate(
-//       req.params.id,
-//       req.body
-//     );
-//     await updatedArticle.save();
-//     res.json(updatedArticle);
-//     throw Error("Error: ", Error);
-//   } catch (error) {
-//     res.status(status).json("Error: ", error);
-//     // res.status(400).json("Error: ", error);
-//   }
-// });
 
 // @route DELETE api/articles/:id
 // @desc Delete an article
@@ -178,8 +144,7 @@ router.delete("/:id", auth, async (req, res) => {
     await res.json("Article has been deleted!")
     throw Error("Error: ", Error)
   } catch (error) {
-    res.status(status).json("Error: ", error);
-    // res.status(400).json("Error: ", error);
+    res.status(400).json({ error: err });
   }
 })
 
@@ -192,8 +157,7 @@ router.get("/comments/allComments", async (req, res) => {
     await res.json(comments)
     throw Error("Error: ", Error)
   } catch (error) {
-    res.status(400).json({error: error})
-    // res.status(status).json("Error: ", error);
+    res.status(400).json({ error: err });
   }
 })
 
@@ -211,8 +175,7 @@ router.post("/comments", auth, async (req, res) => {
     res.json(saveComment)
     throw Error("Error: ", Error);
   } catch (error) {
-    res.status(status).json("Error: ", error);
-    // res.status(400).json("Error: ", error);
+    res.status(400).json({ error: err });
   }
 });
 
@@ -225,8 +188,7 @@ router.delete("/comments/:id", auth, async (req, res) => {
     await res.json("Comment has been deleted!")
     throw Error("Error: ", Error)
   } catch (error) {
-    res.status(status).json("Error: ", error);
-    // res.status(400).json("Error: ", error);
+    res.status(400).json({ error: err });
   }
 })
 

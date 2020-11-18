@@ -92,8 +92,7 @@ router.put("/:id", auth, async (req, res) => {
     res.json(updatedUser);
     throw Error("Error: ", Error);
   } catch (error) {
-    res.status(status).json("Error: ", error);
-    // res.status(400).json("Error: ", error);
+    res.status(400).json({ error: err });
   }
 });
 

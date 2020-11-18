@@ -10,7 +10,6 @@ const s3 = new aws.S3();
 aws.config.update({
   secretAccessKey: process.env.AWS_SECRET,
   accessKeyId: process.env.AWS_ID,
-  // region: "us-west-2",
 });
 
 // function that validates the file type
