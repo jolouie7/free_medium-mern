@@ -9,8 +9,9 @@ Test Credential:
 - Username: test
 - Password: test
 
-<!-- ![Expense List]()
-![Expense Graph]() -->
+![Global Feed](images/global-feed.png)
+![Current User Profile](images/my-profile.png)
+![Other User Profile](images/other-user-profile.png)
 
 ## Getting Started
 
