@@ -6,8 +6,8 @@ Freemium is a clone of the popular blogging platform medium.
 
 #### [Live Site](https://free-medium-reactjs.vercel.app/)
 Test Credential:
-> Username: test
-> Password: test
+- Username: test
+- Password: test
 
 <!-- ![Expense List]()
 ![Expense Graph]() -->
