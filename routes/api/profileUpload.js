@@ -7,7 +7,7 @@ const User = require("../../models/User");
 router.post("/:id", (req, res) => {
   const uid = req.params.id;
 
-  singleUpload(req, res, function (err) {
+  singleUpload(req, res, (err) => {
     if (err) {
       return res.json({
         success: false,
