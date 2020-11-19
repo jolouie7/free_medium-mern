@@ -10,6 +10,7 @@ const s3 = new aws.S3();
 aws.config.update({
   secretAccessKey: process.env.AWS_SECRET,
   accessKeyId: process.env.AWS_ID,
+  region: "us-west-1",
 });
 
 // function that validates the file type
@@ -33,7 +34,7 @@ const upload = multer({
       cb(null, { fieldName: "TESTING_METADATA" });
     },
     key: function (req, file, cb) {
-      cb(null, Date.now().toString());
+      cb(null, file.originalname.split(".")[0] + "-" + Date.now().toString());
     },
   }),
 });
