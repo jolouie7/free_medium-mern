@@ -20,16 +20,13 @@
     "dompurify": "^2.2.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "file-type": "^16.0.1",
     "jsdom": "^16.4.0",
     "jsonwebtoken": "^8.5.1",
     "marked": "^1.2.3",
     "mongoose": "^5.10.9",
     "multer": "^1.4.2",
     "multer-s3": "^2.9.0",
-    "multiparty": "^4.2.2",
     "path": "^0.12.7",
-    "slugify": "^1.4.6",
-    "uuid": "^8.3.1"
+    "slugify": "^1.4.6"
   }
 }
