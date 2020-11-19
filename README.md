@@ -44,6 +44,7 @@ npm run dev
 * [React Hooks](https://reactjs.org/)
 * [Redux](https://redux.js.org/)
 * [React Bootstrap](https://react-bootstrap.github.io/)
+* [Typescript](https://www.typescriptlang.org/)
 
 ##### Backend
 * [Nodejs](https://nodejs.org/en/)
@@ -54,14 +55,14 @@ npm run dev
 ## Features
 * Full CRUD funtionality
 * Authentication and Authorization using JWT
-* Testing with Cypress.io
-* Displays a pie chart of monthly expenses
-* Filter expenses by month
+* Photo upload using AWS S3
+* Comment system
+* Like system
+* Follow/Unfollow system
 
 ## Future Features
-* Add more tests
-* Add a couple more charts
-* Improve landing page
+* Add tests
+* Add tag system
 
 ## License
 
